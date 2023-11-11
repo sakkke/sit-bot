@@ -27,7 +27,7 @@ times = [
 
 async def action840():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎯 次の授業　1限　**9時00分**〜10時30分')
+    await channel.send('☀ おはようございます😀\n🎯 次の授業　1限　**9時00分**〜10時30分')
 
 async def action900():
     channel = client.get_channel(notify_channel_id)
