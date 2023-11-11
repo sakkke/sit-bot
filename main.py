@@ -134,6 +134,17 @@ async def loop():
 def get_next_notify_time():
     now = datetime.now()
 
+    is_saturday = now.weekday() == 5
+    is_sunday = now.weekday() == 6
+
+    if is_saturday:
+        monday = now + timedelta(days=2)
+        return times[0], datetime(monday.year, monday.month, monday.day, times[0].hour, times[0].minute)
+
+    if is_sunday:
+        monday = now + timedelta(days=1)
+        return times[0], datetime(monday.year, monday.month, monday.day, times[0].hour, times[0].minute)
+
     for notify_time in times:
         notify_datetime = datetime(now.year, now.month, now.day, notify_time.hour, notify_time.minute)
         if notify_datetime > now:
