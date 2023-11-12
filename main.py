@@ -27,63 +27,63 @@ times = [
 
 async def action840():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('☀ おはようございます😀\n🎯 次の授業　1限　**9時00分**〜10時30分')
+    await channel.send('☀ おはようございます😀\n🎯 次の授業 1限 **9時00分**〜10時30分')
 
 async def action900():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎬 1限　開始　**9時00分**〜10時30分')
+    await channel.send('🎬 1限 開始 **9時00分**〜10時30分')
 
 async def action1020():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎯 次の授業　2限　**10時40分**〜12時10分')
+    await channel.send('🎯 次の授業 2限 **10時40分**〜12時10分')
 
 async def action1030():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('✅ 1限　終了　9時00分〜**10時30分**\n🎯 次の授業　2限　**10時40分**〜12時10分')
+    await channel.send('✅ 1限 終了 9時00分〜**10時30分**\n🎯 次の授業 2限 **10時40分**〜12時10分')
 
 async def action1040():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎬 2限　開始　**10時40分**〜12時10分')
+    await channel.send('🎬 2限 開始 **10時40分**〜12時10分')
 
 async def action1210():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('✅ 2限　終了　10時40分〜**12時10分**\n🎯 次の授業　3限　**13時00分**〜14時30分')
+    await channel.send('✅ 2限 終了 10時40分〜**12時10分**\n🎯 次の授業 3限 **13時00分**〜14時30分')
 
 async def action1240():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎯 次の授業　3限　**13時00分**〜14時30分')
+    await channel.send('🎯 次の授業 3限 **13時00分**〜14時30分')
 
 async def action1300():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎬 3限　開始　**13時00分**〜14時30分')
+    await channel.send('🎬 3限 開始 **13時00分**〜14時30分')
 
 async def action1420():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎯 次の授業　4限　**14時40分**〜16時10分')
+    await channel.send('🎯 次の授業 4限 **14時40分**〜16時10分')
 
 async def action1430():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('✅ 3限　終了　13時00分〜**14時30分**\n🎯 次の授業　4限　**14時40分**〜16時10分')
+    await channel.send('✅ 3限 終了 13時00分〜**14時30分**\n🎯 次の授業 4限 **14時40分**〜16時10分')
 
 async def action1440():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎬 4限　開始　**14時40分**〜16時10分')
+    await channel.send('🎬 4限 開始 **14時40分**〜16時10分')
 
 async def action1600():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎯 次の授業　5限　**16時20分**〜17時50分')
+    await channel.send('🎯 次の授業 5限 **16時20分**〜17時50分')
 
 async def action1610():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('✅ 4限　終了　14時40分〜**16時10分**\n🎯 次の授業　5限　**16時20分**〜17時50分')
+    await channel.send('✅ 4限 終了 14時40分〜**16時10分**\n🎯 次の授業 5限 **16時20分**〜17時50分')
 
 async def action1620():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('🎬 5限　開始　**16時20分**〜17時50分')
+    await channel.send('🎬 5限 開始 **16時20分**〜17時50分')
 
 async def action1750():
     channel = client.get_channel(notify_channel_id)
-    await channel.send('✅ 5限　終了　16時20分〜**17時50分**\n🎉 お疲れ様でした😊')
+    await channel.send('✅ 5限 終了 16時20分〜**17時50分**\n🎉 お疲れ様でした😊')
 
 actions = {
     time(8, 40): action840,
