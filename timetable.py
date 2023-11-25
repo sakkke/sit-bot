@@ -15,12 +15,13 @@ def get_timetable(subjects: list[Subject], years: int, semester: Semester):
         Day.THURSDAY: '木曜日',
         Day.FRIDAY: '金曜日',
     }
+    chunk_size = 8
     for subject in subjects:
         if subject.years != years or subject.semester != semester:
             continue
 
         day = day_to_text[subject.day]
-        name = subject.name
+        name = '\n'.join([subject.name[i:i+chunk_size] for i in range(0, len(subject.name), chunk_size)])
         for index in subject.indexes:
             timetable[day][index - 1] = name
     return timetable

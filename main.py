@@ -152,7 +152,10 @@ async def timetable(ctx, years: discord.Option(description='年'), semester: dis
 
     ax.axis('off')
 
-    ax.table(cellText=df.values, colLabels=df.columns, bbox=[0, 0, 1, 1])
+    table = ax.table(cellText=df.values, cellLoc='center', colLabels=df.columns, bbox=[0, 0, 1, 1])
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(8)
 
     with io.BytesIO() as stream:
         plt.savefig(stream, format='png')
