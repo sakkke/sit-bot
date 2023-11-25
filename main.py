@@ -4,6 +4,15 @@ import discord
 import asyncio
 from datetime import datetime, time, timedelta
 
+from subject import Semester, filter_subjects
+from timetable import get_timetable
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import io
+
+mpl.rc('font', family='Noto Sans CJK JP')
+
 token = os.environ['SIT_BOT_TOKEN']
 
 notify_channel_id = int(os.environ['SIT_BOT_CHANNEL_NOTIFY'])
@@ -120,6 +129,32 @@ async def on_message(message):
 
     if message.content.startswith('$hello'):
         await message.channel.send('Hello!')
+
+@bot.slash_command(name = "timetable", description = "Generate timetable")
+async def timetable(ctx, years: discord.Option(description='年'), semester: discord.Option(description='学期')):
+    await ctx.defer()
+
+    author = ctx.author
+    roles = [role.name for role in author.roles]
+    subjects = filter_subjects(roles)
+    text_to_semester = {
+        '前学期': Semester.FIRST,
+        '後学期': Semester.SECOND,
+    }
+    timetable = get_timetable(subjects, int(years), text_to_semester[semester])
+
+    df = pd.DataFrame(timetable)
+
+    fig, ax = plt.subplots()
+
+    ax.axis('off')
+
+    ax.table(cellText=df.values, colLabels=df.columns, bbox=[0, 0, 1, 1])
+
+    with io.BytesIO() as stream:
+        plt.savefig(stream, format='png')
+        stream.seek(0)
+        await ctx.respond(file=discord.File(stream, 'image.png'))
 
 async def loop():
     while True:
