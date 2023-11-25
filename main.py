@@ -1,3 +1,5 @@
+from utils import flatten
+
 import os
 import discord
 from dotenv import load_dotenv
@@ -137,13 +139,20 @@ async def on_message(message):
     if message.content.startswith('$hello'):
         await message.channel.send('Hello!')
 
+    max_tokens = 1000
+
     if bot.user.mentioned_in(message):
         history = await get_message_history(message, [])
         print(history)
 
+        content_types = [c['type'] for c in flatten(item['content'] for item in history)]
+        to_use_gpt_4_vision_preview = 'image_url' in content_types
+        model = 'gpt-4-vision-preview' if to_use_gpt_4_vision_preview else 'gpt-4-1106-preview'
+
         completion = ai.chat.completions.create(
-            model='gpt-3.5-turbo',
+            model=model,
             messages=history,
+            max_tokens=max_tokens,
         )
 
         answer = completion.choices[0].message.content
@@ -157,9 +166,14 @@ async def on_message(message):
             history = await get_message_history(referenced_message, [])
             print(history)
 
+            content_types = [c['type'] for c in flatten(item['content'] for item in history)]
+            to_use_gpt_4_vision_preview = 'image_url' in content_types
+            model = 'gpt-4-vision-preview' if to_use_gpt_4_vision_preview else 'gpt-4-1106-preview'
+
             completion = ai.chat.completions.create(
-                model='gpt-3.5-turbo',
+                model=model,
                 messages=history,
+                max_tokens=max_tokens,
             )
 
             answer = completion.choices[0].message.content
@@ -205,8 +219,19 @@ async def loop():
         await actions[next_notify_time]()
 
 async def get_message_history(message, history, i=0):
+    supported_exts = [
+        '.gif',
+        '.jpeg',
+        '.jpg',
+        '.png',
+    ]
     if len(history) == 0:
-        history.insert(0, {'role': 'user', 'content': message.content})
+        history.insert(0, {'role': 'user', 'content': [{'type': 'text', 'text': message.content}]})
+        for attachment in message.attachments:
+            for supported_ext in supported_exts:
+                if attachment.filename.endswith(supported_ext):
+                    history[0]['content'].append({'type': 'image_url', 'image_url': attachment.url})
+                    break
         print(i, history)
 
         return await get_message_history(message, history, i + 1)
@@ -214,12 +239,18 @@ async def get_message_history(message, history, i=0):
         referenced_message = await message.channel.fetch_message(message.reference.message_id)
 
         role = 'assistant' if referenced_message.author == bot.user else 'user'
-        history.insert(0, {'role': role, 'content': referenced_message.content})
+        history.insert(0, {'role': role, 'content': [{'type': 'text', 'text': referenced_message.content}]})
+        if role == 'user':
+            for attachment in message.attachments:
+                for supported_ext in supported_exts:
+                    if attachment.filename.endswith(supported_ext):
+                        history[0]['content'].append({'type': 'image_url', 'image_url': attachment.url})
+                        break
         print(i, history)
 
         return await get_message_history(referenced_message, history, i + 1)
     else:
-        history.insert(0, {'role': 'system', 'content': 'あなたはアシスタントです。'})
+        history.insert(0, {'role': 'system', 'content': [{'type': 'text', 'text': 'あなたはアシスタントです。'}]})
         print(i, history)
 
         return history
