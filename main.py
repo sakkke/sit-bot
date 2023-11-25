@@ -1,5 +1,6 @@
 import os
 import discord
+from dotenv import load_dotenv
 
 import asyncio
 from datetime import datetime, time, timedelta
@@ -13,9 +14,11 @@ import io
 
 mpl.rc('font', family='Noto Sans CJK JP')
 
-token = os.environ['SIT_BOT_TOKEN']
+load_dotenv()
 
-notify_channel_id = int(os.environ['SIT_BOT_CHANNEL_NOTIFY'])
+token = os.getenv('SIT_BOT_TOKEN')
+
+notify_channel_id = int(os.getenv('SIT_BOT_CHANNEL_NOTIFY'))
 
 times = [
     time(8, 40),
