@@ -16,9 +16,9 @@ mpl.rc('font', family='Noto Sans CJK JP')
 
 load_dotenv()
 
-token = os.getenv('SIT_BOT_TOKEN')
+token = os.getenv('TOKEN')
 
-notify_channel_id = int(os.getenv('SIT_BOT_CHANNEL_NOTIFY'))
+notify_channel_id = int(os.getenv('CHANNEL_NOTIFY'))
 
 times = [
     time(8, 40),
