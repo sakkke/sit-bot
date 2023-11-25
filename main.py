@@ -12,6 +12,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import io
 
+from openai import OpenAI
+
 mpl.rc('font', family='Noto Sans CJK JP')
 
 load_dotenv()
@@ -120,6 +122,8 @@ intents.message_content = True
 
 bot = discord.Bot(intents=intents)
 
+ai = OpenAI()
+
 @bot.event
 async def on_ready():
     print(f'We have logged in as {bot.user}')
@@ -132,6 +136,34 @@ async def on_message(message):
 
     if message.content.startswith('$hello'):
         await message.channel.send('Hello!')
+
+    if bot.user.mentioned_in(message):
+        history = await get_message_history(message, [])
+        print(history)
+
+        completion = ai.chat.completions.create(
+            model='gpt-3.5-turbo',
+            messages=history,
+        )
+
+        answer = completion.choices[0].message.content
+        print(answer)
+
+        await message.reply(answer)
+    elif message.reference is not None:
+        referenced_message = await message.channel.fetch_message(message.reference.message_id)
+
+        if referenced_message.author == bot.user:
+            history = await get_message_history(referenced_message, [])
+            print(history)
+
+            completion = ai.chat.completions.create(
+                model='gpt-3.5-turbo',
+                messages=history,
+            )
+
+            answer = completion.choices[0].message.content
+            print(answer)
 
 @bot.slash_command(name = "timetable", description = "Generate timetable")
 async def timetable(ctx, years: discord.Option(description='年'), semester: discord.Option(description='学期')):
@@ -171,6 +203,26 @@ async def loop():
         print(f'Run after {delay} seconds...')
         await asyncio.sleep(delay)
         await actions[next_notify_time]()
+
+async def get_message_history(message, history, i=0):
+    if len(history) == 0:
+        history.insert(0, {'role': 'user', 'content': message.content})
+        print(i, history)
+
+        return await get_message_history(message, history, i + 1)
+    elif message.reference is not None:
+        referenced_message = await message.channel.fetch_message(message.reference.message_id)
+
+        role = 'assistant' if referenced_message.author == bot.user else 'user'
+        history.insert(0, {'role': role, 'content': referenced_message.content})
+        print(i, history)
+
+        return await get_message_history(referenced_message, history, i + 1)
+    else:
+        history.insert(0, {'role': 'system', 'content': 'あなたはアシスタントです。'})
+        print(i, history)
+
+        return history
 
 def get_next_notify_time():
     now = datetime.now()
