@@ -34,7 +34,7 @@ def filter_subjects(roles: list[str]) -> list[Subject]:
         a, b, c = role.split(':')
 
         day = get_day(a[0])
-        indexes = map(int, a[1:].split(','))
+        indexes = list(map(int, a[1:].split(',')))
         name = b
         years = int(c[:-3])
         semester = get_semester(c[-3:])
