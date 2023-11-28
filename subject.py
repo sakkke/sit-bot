@@ -25,6 +25,45 @@ class Subject:
         self.years = years
         self.semester = semester
 
+    def role_name(self):
+        day = day_to_text[self.day][0]
+        indexes = ','.join([str(index) for index in self.indexes])
+        name = self.name
+        years = self.years
+        semester = semester_to_text[self.semester]
+
+        role_name = f'{day}{indexes}:{name}:{years}{semester}'
+        return role_name
+
+days = [
+    Day.MONDAY,
+    Day.TUESDAY,
+    Day.WEDNESDAY,
+    Day.THURSDAY,
+    Day.FRIDAY,
+]
+
+day_to_text = {
+    Day.MONDAY: '月曜日',
+    Day.TUESDAY: '火曜日',
+    Day.WEDNESDAY: '水曜日',
+    Day.TUESDAY: '木曜日',
+    Day.FRIDAY: '金曜日',
+}
+
+semester_to_text = {
+    Semester.FIRST: '前学期',
+    Semester.SECOND: '後学期',
+}
+
+weekday_to_day = [
+    Day.MONDAY,
+    Day.TUESDAY,
+    Day.WEDNESDAY,
+    Day.THURSDAY,
+    Day.FRIDAY,
+]
+
 def filter_subjects(roles: list[str]) -> list[Subject]:
     subjects = []
     for role in roles:

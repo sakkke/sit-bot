@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import asyncio
 from datetime import datetime, time, timedelta
 
-from subject import Semester, filter_subjects
+from subject import Day, Semester, days, day_to_text, filter_subjects, get_semester, weekday_to_day
 from timetable import get_timetable
 import pandas as pd
 import matplotlib as mpl
@@ -22,7 +22,11 @@ load_dotenv()
 
 token = os.getenv('TOKEN')
 
+guild_id = int(os.getenv('GUILD_ID'))
 notify_channel_id = int(os.getenv('CHANNEL_NOTIFY'))
+
+current_years = int(os.getenv('CURRENT_YEARS'))
+current_semester = get_semester(os.getenv('CURRENT_SEMESTER'))
 
 times = [
     time(8, 40),
@@ -49,6 +53,10 @@ async def action900():
     channel = bot.get_channel(notify_channel_id)
     await channel.send('🎬 1限 開始 **9時00分**〜10時30分')
 
+    now = datetime.now()
+    day = days[now.weekday()]
+    await notify_tasks(current_years, current_semester, day, 1)
+
 async def action1020():
     channel = bot.get_channel(notify_channel_id)
     await channel.send('🎯 次の授業 2限 **10時40分**〜12時10分')
@@ -60,6 +68,10 @@ async def action1030():
 async def action1040():
     channel = bot.get_channel(notify_channel_id)
     await channel.send('🎬 2限 開始 **10時40分**〜12時10分')
+
+    now = datetime.now()
+    day = days[now.weekday()]
+    await notify_tasks(current_years, current_semester, day, 2)
 
 async def action1210():
     channel = bot.get_channel(notify_channel_id)
@@ -73,6 +85,10 @@ async def action1300():
     channel = bot.get_channel(notify_channel_id)
     await channel.send('🎬 3限 開始 **13時00分**〜14時30分')
 
+    now = datetime.now()
+    day = days[now.weekday()]
+    await notify_tasks(current_years, current_semester, day, 3)
+
 async def action1420():
     channel = bot.get_channel(notify_channel_id)
     await channel.send('🎯 次の授業 4限 **14時40分**〜16時10分')
@@ -85,6 +101,10 @@ async def action1440():
     channel = bot.get_channel(notify_channel_id)
     await channel.send('🎬 4限 開始 **14時40分**〜16時10分')
 
+    now = datetime.now()
+    day = days[now.weekday()]
+    await notify_tasks(current_years, current_semester, day, 4)
+
 async def action1600():
     channel = bot.get_channel(notify_channel_id)
     await channel.send('🎯 次の授業 5限 **16時20分**〜17時50分')
@@ -96,6 +116,10 @@ async def action1610():
 async def action1620():
     channel = bot.get_channel(notify_channel_id)
     await channel.send('🎬 5限 開始 **16時20分**〜17時50分')
+
+    now = datetime.now()
+    day = days[now.weekday()]
+    await notify_tasks(current_years, current_semester, day, 5)
 
 async def action1750():
     channel = bot.get_channel(notify_channel_id)
@@ -218,6 +242,22 @@ async def loop():
         await asyncio.sleep(delay)
         await actions[next_notify_time]()
 
+def get_current_subject_roles(years: int, semester: Semester, day: Day, index: int):
+    guild = get_guild()
+    roles = [role.name for role in guild.roles]
+
+    subjects = []
+    for subject in filter_subjects(roles):
+        if subject.years == years and subject.semester == semester and subject.day == day and index in subject.indexes:
+            subjects.append(subject)
+
+    subject_roles = [discord.utils.get(guild.roles, name=subject.role_name()) for subject in subjects]
+    return subject_roles
+
+def get_guild():
+    guild = discord.utils.get(bot.guilds, id=guild_id)
+    return guild
+
 async def get_message_history(message, history, i=0):
     supported_exts = [
         '.gif',
@@ -276,5 +316,32 @@ def get_next_notify_time():
 
     tomorrow = now + timedelta(days=1)
     return times[0], datetime(tomorrow.year, tomorrow.month, tomorrow.day, times[0].hour, times[0].minute)
+
+async def notify_tasks(years: int, semester: Semester, day: Day, index: int):
+    subject_roles = get_current_subject_roles(years, semester, day, index)
+
+    now = datetime.now()
+    formatted_date = now.strftime('%Y年%m月%d日')
+    day_text = day_to_text[weekday_to_day[now.weekday()]]
+
+    indexes_text = f'{index}限'
+
+    mentions = ' '.join([subject_role.mention for subject_role in subject_roles])
+    mentions_text = mentions if mentions else '(なし)'
+
+    reactions = {'出席': '👋', '課題': '✍️'}
+
+    message_text  = f'''## 🗒️ {formatted_date}{day_text}{indexes_text}のタスク
+**授業**: {mentions_text}
+**リアクション**:
+- 出席: {reactions['出席']}
+- 課題: {reactions['課題']}'''
+    print(message_text)
+
+    channel = bot.get_channel(notify_channel_id)
+    message = await channel.send(message_text)
+
+    for reaction in reactions.values():
+        await message.add_reaction(reaction)
 
 bot.run(token)
